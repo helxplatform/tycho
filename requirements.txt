@@ -4,7 +4,7 @@ Flask-RESTful==0.3.7
 Jinja2==2.10.1 
 MarkupSafe==1.1.1 
 PyJWT==1.7.1 
-PyYAML==5.1 
+PyYAML==5.4.1 
 Werkzeug==0.15.3 
 adal==1.2.1 
 aniso8601==4.1.0 
