@@ -252,3 +252,7 @@ contexts:
     extends:
       - common
     name: NIH HEAL Initiative
+  cmas:
+    extends:
+      - common
+    name: Community Modeling and Analysis System for Air Quality Model
