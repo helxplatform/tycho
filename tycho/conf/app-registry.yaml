@@ -255,4 +255,12 @@ contexts:
   cmas:
     extends:
       - common
+    apps:
+      cmaq:
+        name: Community Multiscale Air Quality Modeling System
+        description: An active open-source development project of the U.S. EPA that consists of a suite of programs for conducting air quality model simulations
+        details: CMAQ combines current knowledge in atmospheric science and air quality modeling, multi-processor computing techniques, and an open-source framework to deliver fast, technically sound estimates of ozone, particulates, toxics and acid deposition.
+        docs: https://www.epa.gov/cmaq
+        services:
+          cmaq : 7681
     name: Community Modeling and Analysis System for Air Quality Model
