@@ -24,7 +24,7 @@ metadata:
       headers:
           REMOTE_USER: {{system.username}}
       {% endif %}
-      {% if system.system_name == 'jupyter-ds' or system.system_name == 'blackbalsam' or system.system_name == 'hail' or system.system_name == 'blackbalsam-clinical' or system.system_name == 'sas-studio' %}
+      {% if system.system_name == 'jupyter-ds' or system.system_name == 'blackbalsam' or system.system_name == 'hail' or system.system_name == 'blackbalsam-clinical' or system.system_name == 'sas-studio' or system.system_name == 'cmaq' %}
       rewrite: /private/{{system.system_name}}/{{system.username}}/{{system.identifier}}/{{system.conn_string}}
       {% endif %}
       bypass_auth: true
