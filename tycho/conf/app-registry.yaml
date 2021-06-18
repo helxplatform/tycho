@@ -263,4 +263,11 @@ contexts:
         docs: https://www.epa.gov/cmaq
         services:
           cmaq : 7681
+      verdi:
+        name: VERDI
+        description: A Java program for visualizing meteorology, emissions, and air quality modeling data
+        details: With options for overlaying GIS Shapefiles and observational data onto model output, VERDI offers a range of options for viewing atmospheric modeling data. VERDI scripting provides a powerful interface for automating the production of graphics for analyzing your data.
+        docs: https://www.cmascenter.org/verdi/
+        services:
+          verdi : 8080
     name: Community Modeling and Analysis System for Air Quality Model
