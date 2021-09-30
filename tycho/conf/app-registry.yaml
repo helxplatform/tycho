@@ -270,6 +270,7 @@ contexts:
         services:
           jupyter-education: "8888"
         proxy-rewrite-rule: True
+        lock-resources: True
         count: 1
       filebrowser:
         name: File Browser
@@ -281,6 +282,7 @@ contexts:
           runAsUser: 1000
         services:
           filebrowser: "8888"
+        lock-resources: True
         count: 1
       cloud-top:
         name: Cloud Top
@@ -289,4 +291,5 @@ contexts:
         docs: https://helxplatform.github.io/cloudtop-docs/
         services:
           cloud-top: 8080
+        lock-resources: True
         count: 1
