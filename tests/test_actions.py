@@ -4,10 +4,6 @@ import logging
 import pytest
 import yaml
 
-from tycho.client import Tycho
-from tycho.client import TychoClient
-from tycho.client import TychoSystem
-
 from tycho.actions import StartSystemResource
 from tycho.actions import TychoResource
 from tycho.actions import DeleteSystemResource
