@@ -13,8 +13,9 @@ from tycho.actions import StartSystemResource
 from tycho.actions import TychoResource
 from tycho.actions import DeleteSystemResource
 from tycho.actions import StatusSystemResource
+from tycho.actions import ModifySystemResource
 
-logger = logging.getLogger (__name__)
+logger = logging.getLogger(__name__)
 
 
 def test_tycho ():
