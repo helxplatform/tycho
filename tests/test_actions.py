@@ -3,11 +3,10 @@ import json
 import logging
 import pytest
 import yaml
+
+from tycho.client import Tycho
 from tycho.client import TychoClient
-from tycho.test.lib import client
-from tycho.test.lib import system
-from tycho.test.lib import system_request
-from unittest import mock
+from tycho.client import TychoSystem
 
 from tycho.actions import StartSystemResource
 from tycho.actions import TychoResource
@@ -18,7 +17,7 @@ from tycho.actions import ModifySystemResource
 logger = logging.getLogger(__name__)
 
 
-def test_tycho ():
+def test_tycho():
     backplane = None
     tycho_object = Tycho(backplane=backplane)
     assert tycho_object['error'] != 'error'
