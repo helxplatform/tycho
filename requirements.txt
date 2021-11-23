@@ -4,7 +4,7 @@ Flask-Cors==3.0.7
 Flask-RESTful==0.3.7 
 Jinja2==2.11.2 
 MarkupSafe==1.1.1 
-PyJWT==1.7.1 
+PyJWT==2.3.0 
 PyYAML==5.1.2
 Werkzeug==1.0.1 
 adal==1.2.2 
