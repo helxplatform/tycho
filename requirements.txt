@@ -45,7 +45,7 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.7 
 pycparser==2.20
 pynacl==1.4.0 
-pyrsistent==0.14.11
+pyrsistent==0.18.1
 pytest==4.3.0
 pytest-cov==3.0.0
 pytest-mock==1.10.4
