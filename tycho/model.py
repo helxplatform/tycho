@@ -153,7 +153,7 @@ class Container:
 
 class System:
     """ Distributed system of interacting containerized software. """
-    def __init__(self, config, name, principal, service_account, conn_string, proxy_rewrite_rule, containers, identifier, services={}, security_context={}, enable_init_container="false"):
+    def __init__(self, config, name, principal, service_account, conn_string, proxy_rewrite_rule, containers, identifier, services={}, security_context={}):
         """ Construct a new abstract model of a system given a name and set of containers.
         
             Serves as context for the generation of compute cluster specific artifacts.
@@ -198,7 +198,7 @@ class System:
         self.annotations = {}
         self.namespace = "default"
         self.serviceaccount = service_account
-        self.enable_init_container = enable_init_container
+        self.enable_init_container = os.environ.get("TYCHO_APP_ENABLE_VOLUME_PERMISSIONS_INIT_CONTAINER", "false")
         self.conn_string = conn_string
         """PVC flags and other variables for default volumes"""
         self.create_home_dirs = os.environ.get("CREATE_HOME_DIRS", "false").lower()
@@ -217,17 +217,7 @@ class System:
         self.init_memory = os.environ.get("TYCHO_APP_INIT_MEMORY", "250Mi")
         """Proxy rewrite rule for ambassador service annotations"""
         self.proxy_rewrite_rule = proxy_rewrite_rule
-    @staticmethod
-    def enable_init_container(security_context):
-        required_keys = ["run_as_user", "run_as_group"]
-        if os.environ.get("TYCHO_APP_ENABLE_INIT_CONTAINER", "false").lower() == "true":
-            for key in required_keys:
-                if key in security_context.keys() and security_context[key]:
-                    continue
-                else:
-                    return "false"
-            return "true"
-        return "false"
+
     @staticmethod
     def set_security_context(sc_from_registry):
         security_context: dict[str, Any] = {}
@@ -403,7 +393,6 @@ class System:
             "identifier": identifier,
             "services": services,
             "security_context": security_context,
-            "enable_init_container": enable_init_container
         }
         logger.debug (f"parsed-system: {json.dumps(system_specification, indent=2)}")
         system = System(**system_specification)
