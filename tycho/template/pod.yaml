@@ -86,10 +86,6 @@ spec:
       value: {{ system.username }}
     - name: USER
       value: {{ system.username }}
-    - name: DATASOURCE_USERNAME
-      value: {{ system.username }}
-    - name: FLYWAY_DATASOURCE_USERNAME
-      value: {{ system.username }}
     {% if system.amb %}
     - name: NB_PREFIX
       value: /private/{{system.system_name}}/{{system.username}}/{{system.identifier}}
