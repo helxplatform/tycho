@@ -1,0 +1,32 @@
+name: upload-testpypi
+run-name: Package and Upload to TestPypi  
+on:
+  push:
+    branches:
+      - feat/*
+      - fix/*
+      - test/*
+      - doc/*
+  pull_request:
+    branches: [ master, develop, main ]
+jobs:
+  build-deploy-to-test-pypi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install Package Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade build
+          python -m pip install --upgrade twine
+      - name: Build Package
+        run: python -m build
+      - name: Publish Package to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/

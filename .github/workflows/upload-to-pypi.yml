@@ -9,8 +9,6 @@ on:
     tags:
       - v1.*
       - v2.*
-  pull_request:
-    branches: [ master, develop, main ]
 jobs:
   build-deploy-to-pypi:
     runs-on: ubuntu-latest
