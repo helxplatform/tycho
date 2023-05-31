@@ -56,7 +56,7 @@ for p in $(kubectl get svc | grep $test_tag | awk '{ print $1 }' | xargs kubectl
         echo --testing http://$minikube_ip:$p cycle: $cycle
         set +e
         #answer=$(wget --quiet -O- http://$minikube_ip:$p | grep /title)
-        answer=$(wget --quiet -O- http://$minikube_ip:$p | grep /title)
+        answer=$(wget --quiet --timeout=10 -O- http://$minikube_ip:$p | grep /title)
         set -e
         if [ "$answer" ]; then
             echo "  --got answer: $answer"
