@@ -1,9 +1,12 @@
+# This workflow will create an image for any tycho development taking place, not in master branch.
+# We use the {{ github.ref_name }} ie branch name and date to ensure uniqueness of the package.
 name: upload-dev-pypi
 run-name: Package and Upload develop image to Pypi  
 on:
   push:
-    branches:
-      - develop
+    branches-ignore:
+      - master
+      - main
     paths-ignore:
       - README.md
       - .old_cicd/*
@@ -33,10 +36,11 @@ jobs:
         # Each new push will trigger a dev build on develop. 
 
       - name: Edit __init__.py version for develop release
+        if: ${{ github.ref_name == develop }}
         run: |
           R_VERSION=$(grep VERSION ./tycho/__init__.py | awk '{ print $3 }' | tr -d '"')
           date=$(date '+%Y%m%d%H%M%S')
-          DEV_VERSION=${R_VERSION}.dev${date}
+          DEV_VERSION=${R_VERSION}.${{ github.ref_name }}${date}
           echo VERSION=\"$DEV_VERSION\" > ./tycho/__init__.py
 
       - name: Build Package
