@@ -42,7 +42,7 @@ jobs:
           R_VERSION=$(grep VERSION ./tycho/__init__.py | awk '{ print $3 }' | tr -d '"')
           date=$(date '+%Y%m%d%H%M%S')
           BRANCH=$(echo ${{ github.ref_name}} | sed 's/[_-]//g')
-          DEV_VERSION=${R_VERSION}.${BRANCH}${date}
+          DEV_VERSION=${R_VERSION}${BRANCH}${date}
           echo VERSION=\"$DEV_VERSION\" > ./tycho/__init__.py
 
       - name: Build Package
