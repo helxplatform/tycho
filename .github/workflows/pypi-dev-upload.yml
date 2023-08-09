@@ -33,13 +33,16 @@ jobs:
 
         # Important, this does not change the current version of __init__.py in the 
         # Github repo itself, only updates within container for the specific run. 
-        # Each new push will trigger a dev build on develop. 
-
+        # Each new push will trigger a build with that branch version inserted.
+        # We must parse the BRANCH to ensure PEP 440 is followed. 
+        # Use of sed to parse underscores and hyphens out of branch names here
+        # Ref: https://unix.stackexchange.com/questions/33110/using-sed-to-get-rid-of-characters
       - name: Edit __init__.py version for develop release
         run: |
           R_VERSION=$(grep VERSION ./tycho/__init__.py | awk '{ print $3 }' | tr -d '"')
           date=$(date '+%Y%m%d%H%M%S')
-          DEV_VERSION=${R_VERSION}.${{ github.ref_name }}${date}
+          BRANCH=$(echo ${{ github.ref_name}} | sed 's/[_-]//g')
+          DEV_VERSION=${R_VERSION}.${BRANCH}.${date}
           echo VERSION=\"$DEV_VERSION\" > ./tycho/__init__.py
 
       - name: Build Package
