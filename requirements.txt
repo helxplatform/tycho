@@ -6,7 +6,7 @@ Jinja2==3.0.3
 MarkupSafe==2.0.1 
 PyJWT==2.3.0 
 PyYAML==5.4.1
-Werkzeug==2.0.3 
+Werkzeug==2.2.3 
 adal==1.2.7 
 aniso8601==9.0.1 
 asn1crypto==1.4.0 
