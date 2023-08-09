@@ -10,7 +10,7 @@ import sys
 import traceback
 import yaml
 from flasgger import Swagger
-from flask import Flask, jsonify, g, Response, request, Request
+from flask import Flask, g, Response, request, Request
 from flask_restful import Api, Resource
 from flask_cors import CORS
 from tycho.core import Tycho
