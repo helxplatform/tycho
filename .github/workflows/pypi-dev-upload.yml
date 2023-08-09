@@ -10,8 +10,8 @@ on:
     paths-ignore:
       - README.md
       - .old_cicd/*
-      - .github/*
-      - .github/workflows/*
+      # - .github/*
+      # - .github/workflows/*
       - LICENSE
       - .gitignore
       - .dockerignore
@@ -36,7 +36,6 @@ jobs:
         # Each new push will trigger a dev build on develop. 
 
       - name: Edit __init__.py version for develop release
-        if: ${{ github.ref_name == develop }}
         run: |
           R_VERSION=$(grep VERSION ./tycho/__init__.py | awk '{ print $3 }' | tr -d '"')
           date=$(date '+%Y%m%d%H%M%S')
