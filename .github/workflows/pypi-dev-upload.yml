@@ -10,8 +10,8 @@ on:
     paths-ignore:
       - README.md
       - .old_cicd/*
-      # - .github/*
-      # - .github/workflows/*
+      - .github/*
+      - .github/workflows/*
       - LICENSE
       - .gitignore
       - .dockerignore
@@ -36,7 +36,7 @@ jobs:
       - name: Edit __init__.py version for develop release
         run: |
           R_VERSION=$(grep VERSION ./tycho/__init__.py | awk '{ print $3 }' | tr -d '"')
-          date=$(date '+%Y%m%d%S')
+          date=$(date '+%Y%m%d%H%M%S')
           BRANCH=$(echo ${{ github.ref_name}} | sed 's/[_-]//g')
           DEV_VERSION=${R_VERSION}.dev${date}
           echo VERSION=\"$DEV_VERSION\" > ./tycho/__init__.py
