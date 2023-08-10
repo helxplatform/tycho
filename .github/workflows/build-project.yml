@@ -1,26 +1,6 @@
 name: Build-Project
 run-name: Build-Project
-on:
-  # Any push with exception to the below listed
-  # as they will be built in pypi-upload task. 
-  push:
-    branches-ignore:
-      - master
-      - main
-    paths-ignore:
-      - README.md
-      - .old_cicd/*
-      - .github/*
-      - .github/workflows/*
-      - LICENSE
-      - .gitignore
-      - .dockerignore
-      - .githooks
-    tags-ignore:
-      - 'v[0-9]+.[0-9]+.*'
-  # We still test to ensure the build is successful
-  # for a 'potential PR' when opened. If additions to PR
-  # are pushed, we catch in the push section.  
+on: 
   pull_request:
     branches: [ master, develop, main ]
     types: [ opened ]
