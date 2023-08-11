@@ -62,6 +62,6 @@ texttable==1.6.4
 urllib3==1.26.8 
 websocket-client==0.59.0
 Click==8.0.3
-setuptools==60.9.2
+setuptools==65.5.1
 wheel==0.37.1
 twine==3.8.0
