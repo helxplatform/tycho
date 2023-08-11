@@ -1,5 +1,5 @@
 # Requirements
-Flask==2.0.3 
+Flask==2.2.5 
 Flask-Cors==3.0.10 
 Flask-RESTful==0.3.9 
 Jinja2==3.0.3 
