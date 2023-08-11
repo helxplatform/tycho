@@ -28,7 +28,7 @@ dockerpty==0.4.1
 docopt==0.6.2
 flasgger==0.9.5
 gitdb==4.0.9 
-gitpython==3.1.11 
+gitpython==3.1.32 
 google-auth==2.6.0 
 gunicorn==20.1.0 
 idna==3.3 
