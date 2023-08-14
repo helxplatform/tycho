@@ -13,7 +13,7 @@ updates:
   - package-ecosystem: "pip"
     directory: "/tycho"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     reviewers:
       - "joshua-seals"
       - "Hoid"
