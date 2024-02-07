@@ -4,7 +4,18 @@
 [![Build-Project](https://github.com/helxplatform/tycho/actions/workflows/build-project.yml/badge.svg)](https://github.com/helxplatform/tycho/actions/workflows/build-project.yml)
 [![flake8](https://github.com/helxplatform/tycho/actions/workflows/flake8.yml/badge.svg)](https://github.com/helxplatform/tycho/actions/workflows/flake8.yml)
 
-Tycho is an API, compiler, and executor for cloud native distributed systems.
+## Introduction
+
+Tycho is an python module to perform CRUD on HeLx Apps.  More speficially, a HeLx App is a kubernetes pod created by [HeLx Appstore](https://github.com/helxplatform/appstore) with certain specializations; these specializations (for example username) are connected to the pod in a typical kubernetes way such a label.  Additionally, other properties such as user home directory, user permissions, etc are also enabled.  Underlying this is a HeLx App Model (System) the values of which support these features.  That model is storable in a django database, and is used by appstore to keep track of that per user session.
+
+### Use of templates
+
+An important feature of of tycho is the use of [Jinja](https://github.com/pallets/jinja) that allows a system to be converted to a syntax needed for kubernetes.  This allows for a sussinct way to express the important components of an App is, and then allow jinja's engine to make it readable by Kubernetes.
+
+### Interaction, assumption of Ambassador
+
+Tycho also communicates with Ambassador to set up the authentication mechanism to allow access to only users for which the app is set.
+
 
 * A subset of [docker-compose](https://docs.docker.com/compose/) is the system specification syntax.
 * [Kubernetes](https://kubernetes.io/) is the first supported orchestrator.
