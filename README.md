@@ -23,10 +23,9 @@ Tycho also communicates with Ambassador to set up the authentication mechanism t
 ## Goals
 
 * **Application Simplity**: The Kubernetes API is reliable, extensive, and well documented. It is also large, complex, supports a range of possibilities greater than many applications need, and often requires the creation and control of many objects to execute comparatively simple scenarios. Tycho bridges the simplicity of Compose to the richness of the Kubernetes' architecture.
-* **Microservice**: We wanted an end to end Python 12-factory style OpenAPI microservice that fits seamlessly into a Python ecosystem (which is why we did not use the excellent Kompose tool as a starting point).
-* **Lifecycle Management**: Tycho treats distributed systems as programs whose entire lifecycle can be programmatically managed via an API.
-* **Pluggable Orchestrators**: The Tycho compiler abstracts clients from the orchestrator. It creates an abstract syntax tree to model input systems and generates orchestrator specific artifacts.
-* **Policy**: Tycho now generates network policy configurations governing the ingress and egress of traffic to systems. We anticipate generalizing the policy layer to allow security and other concerns to be woven into a deployment dynamically.
+* **Lifecycle Management**: Tycho treats distributed systems as programs whose entire lifecycle can be programmatically managed.
+* **Pluggable Orchestrators**: The Tycho compiler abstracts clients from the orchestrator. It creates a system model and generates orchestrator specific artifacts.
+* **Policy**: Best practices for application lifetime, security, networking are handled automatically.
 
 ## Prior Art
 
@@ -49,69 +48,13 @@ This means that a pr from feature branch to develop branch results in an automat
 
 To locate the ".dev" tagged pypi build, navigate to the corresponding workflow run in the `Github Actions` tab, called `build-dev-to-pypi` then click the dropdown for `Publish Package to Pypi` and the link to the package will be provided within. The .dev packages are not searchable in Pypi as this would distract from stable packages of the same name and cause confusion - see pep 440. 
 
-## Development environment
+## Development 
 1. git clone https://github.com/helxplatform/tycho.git --branch branch_name
-2. python3 -m venv /path/to/venv - could be any path
-3. source /path/to/venv/bin/activate 
-4. pip install -r /tycho/requirements.txt
-5. export PYTHONPATH={PYTHONPATH}:/path/to/tycho/
-5. python /tycho/tycho/api.py -d
+
+tycho is a python package, and is developed using normal python package patterns.  It does require connectivity to kubernetes to test, and preferrable incorporation by appstore.
 
 ## Quick Start
-samples/jupyter-ds/docker-compose.yaml:
-```
----
-# Docker compose formatted system.
-version: "3"
-services:
-  jupyter-datascience:
-    image: jupyter/datascience-notebook
-    entrypoint: start.sh jupyter lab --LabApp.token=
-    ports:
-      - 8888:8888
-```
-In one shell, run the API:
-```
-$ export PATH=~/dev/tycho/bin:$PATH
-$ tycho api --debug
-```
-In another shell, launch three notebook instances.
-```
-$ export PATH=~/dev/tycho/bin:$PATH
-$ tycho up -f sample/jupyter-ds/docker-compose.yaml
-SYSTEM                         GUID                                PORT   
-jupyter-ds                     909f2e60b83340cd905ae3865d461156    32693  
-$ tycho up -f sample/jupyter-ds/docker-compose.yaml
-SYSTEM                         GUID                                PORT   
-jupyter-ds                     6fc07ab865d14c4c8fd2d6e0380b270e    31333
-$ tycho up -f sample/jupyter-ds/docker-compose.yaml
-SYSTEM                         GUID                                PORT   
-jupyter-ds                     38f01c140f0141d9b4dc1baa33960362    32270
-```
-Then make a request to each instance to show it's running. It may take a moment for the instances to be ready, especially if you're pulling a container for the first time.
-```
-$ for p in $(tycho status | grep -v PORT | awk '{ print $4 }'); do 
-   url=http://$(minikube ip):$p; echo $url; wget -q -O- $url | grep /title;
-done
-http://192.168.99.111:32270
-  <title>JupyterLab</title>
-http://192.168.99.111:31333
-  <title>JupyterLab</title>
-http://192.168.99.111:32693
-  <title>JupyterLab</title>
-```
-Delete all running deployments.
-```
-$ tycho down $(tycho status --terse)
-38f01c140f0141d9b4dc1baa33960362
-6fc07ab865d14c4c8fd2d6e0380b270e
-909f2e60b83340cd905ae3865d461156
-```
-And show that they're gone
-```
-$ tycho status
-None running
-```
+
 
 ### Architecture
 ![image](https://user-images.githubusercontent.com/306971/60749878-ada4fa00-9f6e-11e9-9fb8-d720cf78c41d.png)
