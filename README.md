@@ -53,143 +53,14 @@ To locate the ".dev" tagged pypi build, navigate to the corresponding workflow r
 
 tycho is a python package, and is developed using normal python package patterns.  It does require connectivity to kubernetes to test, and preferrable incorporation by appstore.
 
-## Quick Start
+## Tycho Labels
 
+#### Label: executor
 
-### Architecture
-![image](https://user-images.githubusercontent.com/306971/60749878-ada4fa00-9f6e-11e9-9fb8-d720cf78c41d.png)
+For each application (pod) that is created is labeled with `executor: tycho` which allows for a concise way to list all of the pods that it creates
 
-## Install
+    kubectl get pods -l executor=tycho
 
-* Install python 3.7.x or greater.
-* Create a virtual environment.
-* Install the requirements.
-* Start the server.
-
-```
-python3 -m venv environmentName
-source environmentName/bin/activate
-pip install -r requirements.txt
-export PATH=<tycho-repo-dir>/bin:$PATH
-tycho api
-```
-
-### Usage - A. Development Environment Next to Minikube
-
-This mode uses a local minikube instance with Tycho running outside of Minikube. This is the easiest way to add and test new features quickly.
-
-Run minikube:
-```
-minikbue start
-```
-Run the minikube dashboard:
-```
-minikube dashboard
-```
-Run the Tycho API:
-```
-cd tycho
-PYTHONPATH=$PWD/.. python api.py
-```
-
-Launch the Swagger interface `http://localhost:5000/apidocs/`.
-![image](https://user-images.githubusercontent.com/306971/53313133-f1337d00-3885-11e9-8aea-83ab4a92807e.png)
-
-Use the Tycho CLI client as shown above or invoke the API.
-
-### Usage - B. Development Environment Within Minikube
-
-When we deploy Tycho into Minikube it is now able to get its Kubernetes API configuration from within the cluster.
-
-In the repo's kubernetes directory, we define deployment, pod, service, clusterrole, and clusterrolebinding models for Tycho. The following interaction shows deploying Tycho into Minikube and interacting with the API.
-
-We first deploy all Kubernetes Tycho-api artifacts into Minkube:
-```
-(tycho) [scox@mac~/dev/tycho/tycho]$ kubectl create -f ../kubernetes/
-deployment.extensions/tycho-api created
-pod/tycho-api created
-clusterrole.rbac.authorization.k8s.io/tycho-api-access created
-clusterrolebinding.rbac.authorization.k8s.io/tycho-api-access created
-service/tycho-api created
-```
-Then we use the client as usual.
-
-### Usage - C. Within Google Kubernetes Engine from the Google Cloud Shell
-
-Starting out, Tycho's not running on the cluster:
-![image](https://user-images.githubusercontent.com/306971/60748993-b511d680-9f61-11e9-8851-ff75ca74d079.png)
-
-First deploy the Tycho API 
-```
-$ kubectl create -f ../kubernetes/
-deployment.extensions/tycho-api created
-pod/tycho-api created
-clusterrole.rbac.authorization.k8s.io/tycho-api-access created
-clusterrolebinding.rbac.authorization.k8s.io/tycho-api-access created
-service/tycho-api created
-```
-
-Note, here we've edited the Tycho service def to create the service as type:LoadBalancer for the purposes of a command line demo. In general, we'll access the service from within the cluster rather than exposing it externally.
-
-That runs Tycho:
-![image](https://user-images.githubusercontent.com/306971/60748922-c73f4500-9f60-11e9-8d48-fb49902dc836.png)
-
-Initialize the Tycho API's load balancer IP and node port. 
-```
-$ lb_ip=$(kubectl get svc tycho-api -o json | jq .status.loadBalancer.ingress[0].ip | sed -e s,\",,g)
-$ tycho_port=$(kubectl get service tycho-api --output json | jq .spec.ports[0].port)
-```
-Launch an application (deployment, pod, service). Note the `--command` flag is used to specify the command to run in the container. We use this to specify a flag that will cause the notebook to start without prompting for authentication credentials.
-```
-$ PYTHONPATH=$PWD/.. python client.py --up -n jupyter-data-science-3425 -c jupyter/datascience-notebook -p 8888 --command "start.sh jupyter lab --LabApp.token='
-'"
-200
-{
-  "status": "success",
-  "result": {
-    "containers": {
-      "jupyter-data-science-3425-c": {
-        "port": 32414
-      }
-    }
-  },
-  "message": "Started system jupyter-data-science-3425"
-}
-```
-Refreshing the GKE cluster monitoring UI will now show the service starting:
-![image](https://user-images.githubusercontent.com/306971/60749371-15574700-9f67-11e9-81cf-77ccb6724a08.png)
-
-Then running
-![image](https://user-images.githubusercontent.com/306971/60749074-e8a13080-9f62-11e9-81d2-37f6cdbfc9dc.png)
-
-Get the job's load balancer ip and make a request to test the service.
-```
-$ job_lb_ip=$(kubectl get svc jupyter-data-science-3425 -o json | jq .status.loadBalancer.ingress[0].ip | sed -e s,\",,g)
-$ wget --quiet -O- http://$job_lb_ip:8888 | grep -i /title
-    <title>Jupyter Notebook</title>
-```
-From a browser, that URL takes us directly to the Jupyter Lab IDE:
-![image](https://user-images.githubusercontent.com/306971/60755934-dfe14680-9fc4-11e9-9d3b-d3f32539621d.png)
-
-And shut the service down:
-```
-$ PYTHONPATH=$PWD/.. python client.py --down -n jupyter-data-science-3425 -s http://$lb_ip:$tycho_port
-200
-{
-  "status": "success",
-  "result": null,
-  "message": "Deleted system jupyter-data-science-3425"
-}
-```
-This removes the deployment, pod, service, and replicasets created by the launcher.
-
-### Client Endpoint Autodiscovery
-
-Using the command lines above without the `-s` flag for server will work on GKE. That is, the client is created by first using the K8s API to locate the Tycho-API endpoint and port. It builds the URL automatically and creates a TychoAPI object ready to use.
-```
-client_factory = TychoClientFactory ()
-client = client_factory.get_client ()
-```
 
 ### "proxy_rewrite" Feature Overview:
 
