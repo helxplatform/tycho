@@ -55,12 +55,99 @@ tycho is a python package, and is developed using normal python package patterns
 
 ## Tycho Labels
 
-#### Label: executor
+### Label: executor
 
-For each application (pod) that is created is labeled with `executor: tycho` which allows for a concise way to list all of the pods that it creates
+For each application (pod) that is created is labeled with `executor: tycho` which allows
+for a concise way to list all of the pods that it creates
 
-    kubectl get pods -l executor=tycho
+### Label: app-name
 
+The name of the app (e.g. JupyterLab).  A label to specify what application the
+pod/deployment is executing on behalf of.
+
+### Label: name
+
+As above, but extended with a unique-ifying guid
+
+### Label: username
+
+The name of the user who is logged in via helx-appstore for which a
+tycho-created pod is executing.
+
+### A useful kubectl
+
+Here is a useful way to list all pods for all users listing the pod, application
+name and user for which it's executing
+ 
+    kubectl get pod -l executor=tycho -L app-name -L username --sort-by username
+
+## Source Code
+
+### Tycho System Management (actions.py)
+
+This module provides a set of functionalities to manage distributed systems of cloud-native containers. It allows for creating, monitoring, and deleting systems running on abstracted compute fabrics.
+
+#### Overview
+
+- **TychoResource**: The base class for handling Tycho requests, providing common functionality such as request validation against a predefined schema.
+- **StartSystemResource**: Handles system initiation, parsing, modeling, emitting orchestrator artifacts, and executing a system.
+- **DeleteSystemResource**: Manages system termination, using a system's GUID to eliminate all its running components.
+- **StatusSystemResource**: Provides the status of executing systems, allowing status checks either globally or for specific systems.
+- **ModifySystemResource**: Offers functionality to modify a system's specifications like name, labels, and resources (CPU and memory).
+
+#### Key Functions
+
+- `validate(request, component)`: Validates a request against the API schema.
+- `create_response(result, status, message, exception)`: Creates a formatted response, handling exceptions and status modifications.
+- `post(request)`: For each resource class, processes the POST request to perform the respective actions (start, delete, status check, or modify a system).
+
+### Tycho Client and Services Management (client.py)
+
+This module offers a comprehensive suite of functionalities to manage, monitor, and interact with distributed systems and services, particularly focusing on cloud-native container orchestration using Kubernetes.
+
+#### Key Components
+
+- **TychoService**: Represents a service endpoint, holding details like name, IP address, port, and resource utilization.
+- **TychoStatus**: Models the response from a status request, encapsulating the status, services, and messages.
+- **TychoSystem**: Represents a running system, handling system status, name, identifier, services, and connection strings.
+- **TychoClient**: The core Python client for interacting with the Tycho API, enabling actions like start, status, delete, and modify.
+- **TychoClientFactory**: Facilitates locating and connecting to the Tycho API within a Kubernetes cluster.
+- **TychoApps**: Manages applications, supporting actions like cloning repositories, extracting metadata, and system specifications.
+
+#### Features
+
+- Service utilization tracking, converting and aggregating resource metrics.
+- Comprehensive system representation, including status, service details, and operations.
+- Dynamic interaction with Tycho API to start, stop, modify, and retrieve the status of services.
+- Environment-sensitive Kubernetes configuration loading for in-cluster or external usage.
+- CLI interface for direct interaction, supporting operations like up, down, status, and modify on systems.
+
+### Core (core.py)
+
+The `Tycho` library serves as a sophisticated abstraction layer atop cloud-native container orchestration platforms, enhancing system architecture and policy enforcement. It aims to simplify the design, decision-making, automation, testing, and enforcement processes for teams working with Kubernetes.
+
+## Features
+- **Initialization**: Constructs a Tycho component with configurable backplane and system settings.
+- **Compute Fabric API**: Provides access to the compute fabric's code emitter based on constructor specifications.
+- **System Parsing**: Transforms JSON requests into abstract syntax trees, enabling structured system specifications that include environment variables, services, and networking rules.
+- **Modification Parsing**: Allows for the modification of system metadata and specifications based on GUID, labels, and resource allocations.
+- **Backplane Validation**: Checks for valid compute backplanes and lists supported backplanes, facilitating integration with various compute fabrics.
+
+Designed to work seamlessly with Kubernetes, Tycho leverages a configuration-first approach, promoting clarity and efficiency in deploying and managing containerized applications.
+
+### TychoContext (context.py)
+
+The `TychoContext` library provides a comprehensive Python interface for loading, understanding, and utilizing application registries within a platform environment. It leverages a declarative metadata repository (YAML-based) to outline available applications, including their basic metadata, repositories for further details, and integration with the Tycho system for app management.
+
+Key Features:
+- **Principal Class**: Abstracts system identity with support for access and refresh tokens.
+- **App Registry Loading**: Dynamically loads app registry and default configurations from YAML files, supporting modifications via environment variables.
+- **Configuration Management**: Includes utilities for merging app configurations and handling inheritance and mixins from different contexts.
+- **App Management**: Facilitates starting, stopping, updating, and querying application statuses using the Tycho system, with detailed logging and error handling.
+- **Environment and Security**: Manages application environment variables, security contexts, and integrates with Kubernetes for service accounts and resource management.
+- **Proxy and Integration Support**: Provides mechanisms for proxy rewrite rules and external integrations like Gitea.
+
+Designed for flexibility and ease of integration, this library supports development and testing phases with a NullContext for mock interactions, alongside the primary TychoContext for live environments.
 
 ### "proxy_rewrite" Feature Overview:
 
