@@ -122,19 +122,6 @@ This module offers a comprehensive suite of functionalities to manage, monitor, 
 - Environment-sensitive Kubernetes configuration loading for in-cluster or external usage.
 - CLI interface for direct interaction, supporting operations like up, down, status, and modify on systems.
 
-### Core (core.py)
-
-The `Tycho` library serves as a sophisticated abstraction layer atop cloud-native container orchestration platforms, enhancing system architecture and policy enforcement. It aims to simplify the design, decision-making, automation, testing, and enforcement processes for teams working with Kubernetes.
-
-## Features
-- **Initialization**: Constructs a Tycho component with configurable backplane and system settings.
-- **Compute Fabric API**: Provides access to the compute fabric's code emitter based on constructor specifications.
-- **System Parsing**: Transforms JSON requests into abstract syntax trees, enabling structured system specifications that include environment variables, services, and networking rules.
-- **Modification Parsing**: Allows for the modification of system metadata and specifications based on GUID, labels, and resource allocations.
-- **Backplane Validation**: Checks for valid compute backplanes and lists supported backplanes, facilitating integration with various compute fabrics.
-
-Designed to work seamlessly with Kubernetes, Tycho leverages a configuration-first approach, promoting clarity and efficiency in deploying and managing containerized applications.
-
 ### TychoContext (context.py)
 
 The `TychoContext` library provides a comprehensive Python interface for loading, understanding, and utilizing application registries within a platform environment. It leverages a declarative metadata repository (YAML-based) to outline available applications, including their basic metadata, repositories for further details, and integration with the Tycho system for app management.
@@ -148,6 +135,88 @@ Key Features:
 - **Proxy and Integration Support**: Provides mechanisms for proxy rewrite rules and external integrations like Gitea.
 
 Designed for flexibility and ease of integration, this library supports development and testing phases with a NullContext for mock interactions, alongside the primary TychoContext for live environments.
+
+### Core (core.py)
+
+The `Tycho` library serves as a sophisticated abstraction layer atop cloud-native container orchestration platforms, enhancing system architecture and policy enforcement. It aims to simplify the design, decision-making, automation, testing, and enforcement processes for teams working with Kubernetes.
+
+## Features
+- **Initialization**: Constructs a Tycho component with configurable backplane and system settings.
+- **Compute Fabric API**: Provides access to the compute fabric's code emitter based on constructor specifications.
+- **System Parsing**: Transforms JSON requests into abstract syntax trees, enabling structured system specifications that include environment variables, services, and networking rules.
+- **Modification Parsing**: Allows for the modification of system metadata and specifications based on GUID, labels, and resource allocations.
+- **Backplane Validation**: Checks for valid compute backplanes and lists supported backplanes, facilitating integration with various compute fabrics.
+
+Designed to work seamlessly with Kubernetes, Tycho leverages a configuration-first approach, promoting clarity and efficiency in deploying and managing containerized applications.
+
+### Kubernetes interaction (kube.py)
+
+#### Description
+The `kube.py` script provides a Python class `KubernetesCompute` that acts as an 
+orchestrator for Kubernetes, allowing for operations such as system start-up, 
+deletion, status checks, and modifications on a Kubernetes cluster.
+
+#### Key Features
+- Initialize connection to Kubernetes based on the environment.
+- Start systems on Kubernetes by generating necessary artifacts like Deployments,
+  Persistent Volumes, and Services.
+- Delete deployments and related resources in Kubernetes.
+- Check the status of systems/deployments in the cluster.
+- Modify existing deployments based on specified changes.
+
+#### Usage
+The class within `kube.py` can be instantiated and used within other Python 
+scripts to interact with a Kubernetes cluster. It requires Kubernetes client 
+libraries and is designed to work with both Minikube and Google Kubernetes Engine.
+
+#### Dependencies
+- Kubernetes Python client (`kubernetes`)
+
+### Model (model.py)
+
+#### Description
+The `model.py` script contains classes that represent different components of 
+a distributed system in a containerized environment. It includes abstractions 
+for systems, containers, services, volumes, and resource limits, among others, 
+to facilitate system modeling and manipulation in Kubernetes.
+
+#### Key Classes and Features
+
+- `System`: Represents a distributed system of interacting containerized software.
+  It serves as a context for generating compute cluster-specific artifacts.
+
+- `Container`: Models an invocation of an image within a specific infrastructure 
+  context, including configurations like commands, environment variables, ports, 
+  and resource limits.
+
+- `Service`: Models network connectivity rules for a system, detailing ports and 
+  client access.
+
+- `Volumes`: Represents volume configurations associated with containers, handling 
+  PVC (Persistent Volume Claim) associations and path mappings.
+
+- `Limits`: Abstracts resource limits on a container, including CPUs, GPUs, memory, 
+  and ephemeral storage.
+
+- `Probe`: Represents liveness and readiness probes for containers, including HTTP 
+  and TCP probes.
+
+- `ModifySystem`: Represents the specifications for modifying a system's metadata 
+  and specs, particularly focusing on resources and labels.
+
+### Tycho Util (tycho_utils.py)
+
+#### Description
+The `tycho_utils.py` script includes utility classes for rendering templates and handling network-related tasks. It's designed to support dynamic generation of configuration files and other text resources based on templates and context data.
+
+#### Key Components
+
+- `TemplateUtils`: Offers methods to render text and files using Jinja2 templates. This class facilitates dynamic generation of configurations or any text-based resources by injecting context into predefined templates.
+
+- `NetworkUtils`: Contains methods to extract client IP addresses, accounting for direct connections and proxy-forwarded requests. Useful for network-related operations where the client's IP is required.
+
+- `Resource`: Provides static methods to load JSON or YAML resources from file paths, supporting both absolute and relative paths. It's designed to simplify access to structured data files used within the application.
+
 
 ### "proxy_rewrite" Feature Overview:
 
