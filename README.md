@@ -4,7 +4,18 @@
 [![Build-Project](https://github.com/helxplatform/tycho/actions/workflows/build-project.yml/badge.svg)](https://github.com/helxplatform/tycho/actions/workflows/build-project.yml)
 [![flake8](https://github.com/helxplatform/tycho/actions/workflows/flake8.yml/badge.svg)](https://github.com/helxplatform/tycho/actions/workflows/flake8.yml)
 
-Tycho is an API, compiler, and executor for cloud native distributed systems.
+## Introduction
+
+Tycho is an python module to perform CRUD on HeLx Apps.  More speficially, a HeLx App is a kubernetes pod created by [HeLx Appstore](https://github.com/helxplatform/appstore) with certain specializations; these specializations (for example username) are connected to the pod in a typical kubernetes way such a label.  Additionally, other properties such as user home directory, user permissions, etc are also enabled.  Underlying this is a HeLx App Model (System) the values of which support these features.  That model is storable in a django database, and is used by appstore to keep track of that per user session.
+
+### Use of templates
+
+An important feature of of tycho is the use of [Jinja](https://github.com/pallets/jinja) that allows a system to be converted to a syntax needed for kubernetes.  This allows for a sussinct way to express the important components of an App is, and then allow jinja's engine to make it readable by Kubernetes.
+
+### Interaction, assumption of Ambassador
+
+Tycho also communicates with Ambassador to set up the authentication mechanism to allow access to only users for which the app is set.
+
 
 * A subset of [docker-compose](https://docs.docker.com/compose/) is the system specification syntax.
 * [Kubernetes](https://kubernetes.io/) is the first supported orchestrator.
@@ -12,10 +23,9 @@ Tycho is an API, compiler, and executor for cloud native distributed systems.
 ## Goals
 
 * **Application Simplity**: The Kubernetes API is reliable, extensive, and well documented. It is also large, complex, supports a range of possibilities greater than many applications need, and often requires the creation and control of many objects to execute comparatively simple scenarios. Tycho bridges the simplicity of Compose to the richness of the Kubernetes' architecture.
-* **Microservice**: We wanted an end to end Python 12-factory style OpenAPI microservice that fits seamlessly into a Python ecosystem (which is why we did not use the excellent Kompose tool as a starting point).
-* **Lifecycle Management**: Tycho treats distributed systems as programs whose entire lifecycle can be programmatically managed via an API.
-* **Pluggable Orchestrators**: The Tycho compiler abstracts clients from the orchestrator. It creates an abstract syntax tree to model input systems and generates orchestrator specific artifacts.
-* **Policy**: Tycho now generates network policy configurations governing the ingress and egress of traffic to systems. We anticipate generalizing the policy layer to allow security and other concerns to be woven into a deployment dynamically.
+* **Lifecycle Management**: Tycho treats distributed systems as programs whose entire lifecycle can be programmatically managed.
+* **Pluggable Orchestrators**: The Tycho compiler abstracts clients from the orchestrator. It creates a system model and generates orchestrator specific artifacts.
+* **Policy**: Best practices for application lifetime, security, networking are handled automatically.
 
 ## Prior Art
 
@@ -38,204 +48,175 @@ This means that a pr from feature branch to develop branch results in an automat
 
 To locate the ".dev" tagged pypi build, navigate to the corresponding workflow run in the `Github Actions` tab, called `build-dev-to-pypi` then click the dropdown for `Publish Package to Pypi` and the link to the package will be provided within. The .dev packages are not searchable in Pypi as this would distract from stable packages of the same name and cause confusion - see pep 440. 
 
-## Development environment
+## Development 
 1. git clone https://github.com/helxplatform/tycho.git --branch branch_name
-2. python3 -m venv /path/to/venv - could be any path
-3. source /path/to/venv/bin/activate 
-4. pip install -r /tycho/requirements.txt
-5. export PYTHONPATH={PYTHONPATH}:/path/to/tycho/
-5. python /tycho/tycho/api.py -d
 
-## Quick Start
-samples/jupyter-ds/docker-compose.yaml:
-```
----
-# Docker compose formatted system.
-version: "3"
-services:
-  jupyter-datascience:
-    image: jupyter/datascience-notebook
-    entrypoint: start.sh jupyter lab --LabApp.token=
-    ports:
-      - 8888:8888
-```
-In one shell, run the API:
-```
-$ export PATH=~/dev/tycho/bin:$PATH
-$ tycho api --debug
-```
-In another shell, launch three notebook instances.
-```
-$ export PATH=~/dev/tycho/bin:$PATH
-$ tycho up -f sample/jupyter-ds/docker-compose.yaml
-SYSTEM                         GUID                                PORT   
-jupyter-ds                     909f2e60b83340cd905ae3865d461156    32693  
-$ tycho up -f sample/jupyter-ds/docker-compose.yaml
-SYSTEM                         GUID                                PORT   
-jupyter-ds                     6fc07ab865d14c4c8fd2d6e0380b270e    31333
-$ tycho up -f sample/jupyter-ds/docker-compose.yaml
-SYSTEM                         GUID                                PORT   
-jupyter-ds                     38f01c140f0141d9b4dc1baa33960362    32270
-```
-Then make a request to each instance to show it's running. It may take a moment for the instances to be ready, especially if you're pulling a container for the first time.
-```
-$ for p in $(tycho status | grep -v PORT | awk '{ print $4 }'); do 
-   url=http://$(minikube ip):$p; echo $url; wget -q -O- $url | grep /title;
-done
-http://192.168.99.111:32270
-  <title>JupyterLab</title>
-http://192.168.99.111:31333
-  <title>JupyterLab</title>
-http://192.168.99.111:32693
-  <title>JupyterLab</title>
-```
-Delete all running deployments.
-```
-$ tycho down $(tycho status --terse)
-38f01c140f0141d9b4dc1baa33960362
-6fc07ab865d14c4c8fd2d6e0380b270e
-909f2e60b83340cd905ae3865d461156
-```
-And show that they're gone
-```
-$ tycho status
-None running
-```
+tycho is a python package, and is developed using normal python package patterns.  It does require connectivity to kubernetes to test, and preferrable incorporation by appstore.
 
-### Architecture
-![image](https://user-images.githubusercontent.com/306971/60749878-ada4fa00-9f6e-11e9-9fb8-d720cf78c41d.png)
+## Tycho Labels
 
-## Install
+### Label: executor
 
-* Install python 3.7.x or greater.
-* Create a virtual environment.
-* Install the requirements.
-* Start the server.
+For each application (pod) that is created is labeled with `executor: tycho` which allows
+for a concise way to list all of the pods that it creates
 
-```
-python3 -m venv environmentName
-source environmentName/bin/activate
-pip install -r requirements.txt
-export PATH=<tycho-repo-dir>/bin:$PATH
-tycho api
-```
+### Label: app-name
 
-### Usage - A. Development Environment Next to Minikube
+The name of the app (e.g. JupyterLab).  A label to specify what application the
+pod/deployment is executing on behalf of.
 
-This mode uses a local minikube instance with Tycho running outside of Minikube. This is the easiest way to add and test new features quickly.
+### Label: name
 
-Run minikube:
-```
-minikbue start
-```
-Run the minikube dashboard:
-```
-minikube dashboard
-```
-Run the Tycho API:
-```
-cd tycho
-PYTHONPATH=$PWD/.. python api.py
-```
+As above, but extended with a unique-ifying guid
 
-Launch the Swagger interface `http://localhost:5000/apidocs/`.
-![image](https://user-images.githubusercontent.com/306971/53313133-f1337d00-3885-11e9-8aea-83ab4a92807e.png)
+### Label: username
 
-Use the Tycho CLI client as shown above or invoke the API.
+The name of the user who is logged in via helx-appstore for which a
+tycho-created pod is executing.
 
-### Usage - B. Development Environment Within Minikube
+### A useful kubectl
 
-When we deploy Tycho into Minikube it is now able to get its Kubernetes API configuration from within the cluster.
+Here is a useful way to list all pods for all users listing the pod, application
+name and user for which it's executing
+ 
+    kubectl get pod -l executor=tycho -L app-name -L username --sort-by username
 
-In the repo's kubernetes directory, we define deployment, pod, service, clusterrole, and clusterrolebinding models for Tycho. The following interaction shows deploying Tycho into Minikube and interacting with the API.
+## Source Code
 
-We first deploy all Kubernetes Tycho-api artifacts into Minkube:
-```
-(tycho) [scox@mac~/dev/tycho/tycho]$ kubectl create -f ../kubernetes/
-deployment.extensions/tycho-api created
-pod/tycho-api created
-clusterrole.rbac.authorization.k8s.io/tycho-api-access created
-clusterrolebinding.rbac.authorization.k8s.io/tycho-api-access created
-service/tycho-api created
-```
-Then we use the client as usual.
+### Tycho System Management (actions.py)
 
-### Usage - C. Within Google Kubernetes Engine from the Google Cloud Shell
+This module provides a set of functionalities to manage distributed systems of cloud-native containers. It allows for creating, monitoring, and deleting systems running on abstracted compute fabrics.
 
-Starting out, Tycho's not running on the cluster:
-![image](https://user-images.githubusercontent.com/306971/60748993-b511d680-9f61-11e9-8851-ff75ca74d079.png)
+#### Overview
 
-First deploy the Tycho API 
-```
-$ kubectl create -f ../kubernetes/
-deployment.extensions/tycho-api created
-pod/tycho-api created
-clusterrole.rbac.authorization.k8s.io/tycho-api-access created
-clusterrolebinding.rbac.authorization.k8s.io/tycho-api-access created
-service/tycho-api created
-```
+- **TychoResource**: The base class for handling Tycho requests, providing common functionality such as request validation against a predefined schema.
+- **StartSystemResource**: Handles system initiation, parsing, modeling, emitting orchestrator artifacts, and executing a system.
+- **DeleteSystemResource**: Manages system termination, using a system's GUID to eliminate all its running components.
+- **StatusSystemResource**: Provides the status of executing systems, allowing status checks either globally or for specific systems.
+- **ModifySystemResource**: Offers functionality to modify a system's specifications like name, labels, and resources (CPU and memory).
 
-Note, here we've edited the Tycho service def to create the service as type:LoadBalancer for the purposes of a command line demo. In general, we'll access the service from within the cluster rather than exposing it externally.
+#### Key Functions
 
-That runs Tycho:
-![image](https://user-images.githubusercontent.com/306971/60748922-c73f4500-9f60-11e9-8d48-fb49902dc836.png)
+- `validate(request, component)`: Validates a request against the API schema.
+- `create_response(result, status, message, exception)`: Creates a formatted response, handling exceptions and status modifications.
+- `post(request)`: For each resource class, processes the POST request to perform the respective actions (start, delete, status check, or modify a system).
 
-Initialize the Tycho API's load balancer IP and node port. 
-```
-$ lb_ip=$(kubectl get svc tycho-api -o json | jq .status.loadBalancer.ingress[0].ip | sed -e s,\",,g)
-$ tycho_port=$(kubectl get service tycho-api --output json | jq .spec.ports[0].port)
-```
-Launch an application (deployment, pod, service). Note the `--command` flag is used to specify the command to run in the container. We use this to specify a flag that will cause the notebook to start without prompting for authentication credentials.
-```
-$ PYTHONPATH=$PWD/.. python client.py --up -n jupyter-data-science-3425 -c jupyter/datascience-notebook -p 8888 --command "start.sh jupyter lab --LabApp.token='
-'"
-200
-{
-  "status": "success",
-  "result": {
-    "containers": {
-      "jupyter-data-science-3425-c": {
-        "port": 32414
-      }
-    }
-  },
-  "message": "Started system jupyter-data-science-3425"
-}
-```
-Refreshing the GKE cluster monitoring UI will now show the service starting:
-![image](https://user-images.githubusercontent.com/306971/60749371-15574700-9f67-11e9-81cf-77ccb6724a08.png)
+### Tycho Client and Services Management (client.py)
 
-Then running
-![image](https://user-images.githubusercontent.com/306971/60749074-e8a13080-9f62-11e9-81d2-37f6cdbfc9dc.png)
+This module offers a comprehensive suite of functionalities to manage, monitor, and interact with distributed systems and services, particularly focusing on cloud-native container orchestration using Kubernetes.
 
-Get the job's load balancer ip and make a request to test the service.
-```
-$ job_lb_ip=$(kubectl get svc jupyter-data-science-3425 -o json | jq .status.loadBalancer.ingress[0].ip | sed -e s,\",,g)
-$ wget --quiet -O- http://$job_lb_ip:8888 | grep -i /title
-    <title>Jupyter Notebook</title>
-```
-From a browser, that URL takes us directly to the Jupyter Lab IDE:
-![image](https://user-images.githubusercontent.com/306971/60755934-dfe14680-9fc4-11e9-9d3b-d3f32539621d.png)
+#### Key Components
 
-And shut the service down:
-```
-$ PYTHONPATH=$PWD/.. python client.py --down -n jupyter-data-science-3425 -s http://$lb_ip:$tycho_port
-200
-{
-  "status": "success",
-  "result": null,
-  "message": "Deleted system jupyter-data-science-3425"
-}
-```
-This removes the deployment, pod, service, and replicasets created by the launcher.
+- **TychoService**: Represents a service endpoint, holding details like name, IP address, port, and resource utilization.
+- **TychoStatus**: Models the response from a status request, encapsulating the status, services, and messages.
+- **TychoSystem**: Represents a running system, handling system status, name, identifier, services, and connection strings.
+- **TychoClient**: The core Python client for interacting with the Tycho API, enabling actions like start, status, delete, and modify.
+- **TychoClientFactory**: Facilitates locating and connecting to the Tycho API within a Kubernetes cluster.
+- **TychoApps**: Manages applications, supporting actions like cloning repositories, extracting metadata, and system specifications.
 
-### Client Endpoint Autodiscovery
+#### Features
 
-Using the command lines above without the `-s` flag for server will work on GKE. That is, the client is created by first using the K8s API to locate the Tycho-API endpoint and port. It builds the URL automatically and creates a TychoAPI object ready to use.
-```
-client_factory = TychoClientFactory ()
-client = client_factory.get_client ()
-```
+- Service utilization tracking, converting and aggregating resource metrics.
+- Comprehensive system representation, including status, service details, and operations.
+- Dynamic interaction with Tycho API to start, stop, modify, and retrieve the status of services.
+- Environment-sensitive Kubernetes configuration loading for in-cluster or external usage.
+- CLI interface for direct interaction, supporting operations like up, down, status, and modify on systems.
+
+### TychoContext (context.py)
+
+The `TychoContext` library provides a comprehensive Python interface for loading, understanding, and utilizing application registries within a platform environment. It leverages a declarative metadata repository (YAML-based) to outline available applications, including their basic metadata, repositories for further details, and integration with the Tycho system for app management.
+
+Key Features:
+- **Principal Class**: Abstracts system identity with support for access and refresh tokens.
+- **App Registry Loading**: Dynamically loads app registry and default configurations from YAML files, supporting modifications via environment variables.
+- **Configuration Management**: Includes utilities for merging app configurations and handling inheritance and mixins from different contexts.
+- **App Management**: Facilitates starting, stopping, updating, and querying application statuses using the Tycho system, with detailed logging and error handling.
+- **Environment and Security**: Manages application environment variables, security contexts, and integrates with Kubernetes for service accounts and resource management.
+- **Proxy and Integration Support**: Provides mechanisms for proxy rewrite rules and external integrations like Gitea.
+
+Designed for flexibility and ease of integration, this library supports development and testing phases with a NullContext for mock interactions, alongside the primary TychoContext for live environments.
+
+### Core (core.py)
+
+The `Tycho` library serves as a sophisticated abstraction layer atop cloud-native container orchestration platforms, enhancing system architecture and policy enforcement. It aims to simplify the design, decision-making, automation, testing, and enforcement processes for teams working with Kubernetes.
+
+## Features
+- **Initialization**: Constructs a Tycho component with configurable backplane and system settings.
+- **Compute Fabric API**: Provides access to the compute fabric's code emitter based on constructor specifications.
+- **System Parsing**: Transforms JSON requests into abstract syntax trees, enabling structured system specifications that include environment variables, services, and networking rules.
+- **Modification Parsing**: Allows for the modification of system metadata and specifications based on GUID, labels, and resource allocations.
+- **Backplane Validation**: Checks for valid compute backplanes and lists supported backplanes, facilitating integration with various compute fabrics.
+
+Designed to work seamlessly with Kubernetes, Tycho leverages a configuration-first approach, promoting clarity and efficiency in deploying and managing containerized applications.
+
+### Kubernetes interaction (kube.py)
+
+#### Description
+The `kube.py` script provides a Python class `KubernetesCompute` that acts as an 
+orchestrator for Kubernetes, allowing for operations such as system start-up, 
+deletion, status checks, and modifications on a Kubernetes cluster.
+
+#### Key Features
+- Initialize connection to Kubernetes based on the environment.
+- Start systems on Kubernetes by generating necessary artifacts like Deployments,
+  Persistent Volumes, and Services.
+- Delete deployments and related resources in Kubernetes.
+- Check the status of systems/deployments in the cluster.
+- Modify existing deployments based on specified changes.
+
+#### Usage
+The class within `kube.py` can be instantiated and used within other Python 
+scripts to interact with a Kubernetes cluster. It requires Kubernetes client 
+libraries and is designed to work with both Minikube and Google Kubernetes Engine.
+
+#### Dependencies
+- Kubernetes Python client (`kubernetes`)
+
+### Model (model.py)
+
+#### Description
+The `model.py` script contains classes that represent different components of 
+a distributed system in a containerized environment. It includes abstractions 
+for systems, containers, services, volumes, and resource limits, among others, 
+to facilitate system modeling and manipulation in Kubernetes.
+
+#### Key Classes and Features
+
+- `System`: Represents a distributed system of interacting containerized software.
+  It serves as a context for generating compute cluster-specific artifacts.
+
+- `Container`: Models an invocation of an image within a specific infrastructure 
+  context, including configurations like commands, environment variables, ports, 
+  and resource limits.
+
+- `Service`: Models network connectivity rules for a system, detailing ports and 
+  client access.
+
+- `Volumes`: Represents volume configurations associated with containers, handling 
+  PVC (Persistent Volume Claim) associations and path mappings.
+
+- `Limits`: Abstracts resource limits on a container, including CPUs, GPUs, memory, 
+  and ephemeral storage.
+
+- `Probe`: Represents liveness and readiness probes for containers, including HTTP 
+  and TCP probes.
+
+- `ModifySystem`: Represents the specifications for modifying a system's metadata 
+  and specs, particularly focusing on resources and labels.
+
+### Tycho Util (tycho_utils.py)
+
+#### Description
+The `tycho_utils.py` script includes utility classes for rendering templates and handling network-related tasks. It's designed to support dynamic generation of configuration files and other text resources based on templates and context data.
+
+#### Key Components
+
+- `TemplateUtils`: Offers methods to render text and files using Jinja2 templates. This class facilitates dynamic generation of configurations or any text-based resources by injecting context into predefined templates.
+
+- `NetworkUtils`: Contains methods to extract client IP addresses, accounting for direct connections and proxy-forwarded requests. Useful for network-related operations where the client's IP is required.
+
+- `Resource`: Provides static methods to load JSON or YAML resources from file paths, supporting both absolute and relative paths. It's designed to simplify access to structured data files used within the application.
+
 
 ### "proxy_rewrite" Feature Overview:
 
