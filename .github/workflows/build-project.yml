@@ -6,20 +6,5 @@ on:
     types: [ opened ]
 jobs:
   build-packages:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          # using the latest minor release of python here.
-          # ref: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-          python-version: '3.x'
-      - name: Install Package Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade build
-          python -m pip install --upgrade twine
-
-      - name: Build Package
-        run: python -m build
+    uses: helxplatform/helx-github-actions/.github/workflows/build-project-tycho.yml@main
+    secrets: inherit
