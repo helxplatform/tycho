@@ -18,37 +18,5 @@ on:
 
 jobs:
   flake8-check:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-
-    - name: Lint with flake8
-      run: |
-        pip install flake8
-        flake8 --ignore=E,W --exit-zero . 
-      # We continue on error here until the code is clean
-      continue-on-error: true
-
-############################ Bandit ################################
-  bandit:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-
-    - name: Install Requirements
-      run: |
-        pip install --upgrade pip
-        pip install bandit
-
-    # Only report high security issues
-    - name: Test with Bandit
-      run: |
-        bandit -r tycho/*.py -n 3 -lll
+    uses: helxplatform/helx-github-actions/.github/workflows/code-checks-tycho.yml@main
+    secrets: inherit
