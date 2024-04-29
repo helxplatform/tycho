@@ -90,8 +90,10 @@ class KubernetesCompute(Compute):
 
     def is_ambassador_context(self, namespace):
         try:
-            api_response = self.api.list_namespaced_service(field_selector="metadata.name=ambassador", namespace=namespace)
-            if len(api_response.items) > 0:
+            field_sel_api_response = self.api.list_namespaced_service(field_selector="metadata.name=ambassador", namespace=namespace)
+            label_sel_api_response = self.api.list_namespaced_service(label_selector="app=ambassador", namespace=namespace)
+            num_of_services = len(field_sel_api_response) + len(label_sel_api_response)
+            if num_of_services > 0:
                 return True
             else:
                 return False
