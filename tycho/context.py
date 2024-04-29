@@ -287,8 +287,8 @@ class TychoContext:
     
     def start (self, principal, app_id, resource_request, host):
         """ Get application metadata, docker-compose structure, settings, and compose API request. """
-        logger.info(f"context.start - \nprincipal: {principal}\napp_id: {app_id}\n"
-                     "resource_request: {resource_request}\nhost: {host}")
+        logger.info(f"\nprincipal: {principal}\napp_id: {app_id}\n"
+                    f"resource_request: {resource_request}\nhost: {host}")
         spec = self.get_spec (app_id)
         logger.debug(f"context.start - \nspec: {spec}")
         settings = self.client.parse_env (self.get_settings (app_id))
@@ -299,7 +299,7 @@ class TychoContext:
             "clients" : []
           } for k, v in services.items ()
         }
-        logger.debug (f"context.start - parsed {app_id}\nsettings: {settings}\nsettings_all: {settings_all}")
+        logger.debug (f"parsed {app_id}\nsettings: {settings}\nsettings_all: {settings_all}")
         """ Use a pre-existing k8s service account """
         service_account = self.apps[app_id]['serviceAccount'] if 'serviceAccount' in self.apps[app_id].keys() else None
         """ Add entity's auth information """
@@ -308,13 +308,29 @@ class TychoContext:
         """ Security Context that are set for the app """
         spec["security_context"] = self.apps[app_id]["securityContext"] if 'securityContext' in self.apps[app_id].keys() else {}
         spec["services"][app_id]["ext"] = self.apps[app_id]["ext"] if 'ext' in self.apps[app_id].keys() else None
+
+        # If ephemeralStorage is set in the app's docker-compose.yaml then
+        # update the resources with the limits/reservations.   We might want
+        # to give the user the ability to set these in the UI, if so then
+        # remove these few lines after doing so.
+        spec_limits_keys = spec['services'][app_id]['deploy']['resources']['limits'].keys()
+        if "ephemeralStorage" in spec_limits_keys:
+            dc_limits_es = spec['services'][app_id]['deploy']['resources']['limits']['ephemeralStorage']
+            resource_request['deploy']['resources']['limits']['ephemeralStorage'] = dc_limits_es
+        spec_reservations_keys = spec['services'][app_id]['deploy']['resources']['reservations'].keys()
+        if "ephemeralStorage" in spec_reservations_keys:
+            dc_reservations_es = spec['services'][app_id]['deploy']['resources']['reservations']['ephemeralStorage']
+            resource_request['deploy']['resources']['reservations']['ephemeralStorage'] = dc_reservations_es
+
         spec["services"][app_id].update(resource_request)
         """ Certain apps might require appending a string to the custom URL. """
         conn_string = self.apps.get(app_id).get("conn_string", "")
         spec["services"][app_id]["conn_string"] = conn_string
         """ Add a proxy rewrite rule """
         proxy_rewrite_rule = self.apps.get(app_id).get("proxy-rewrite-rule", False)
-        spec["services"][app_id]["proxy_rewrite_rule"] = proxy_rewrite_rule
+        proxy_rewrite = self.apps.get(app_id).get("proxy-rewrite", { "enabled":False, "target":None })
+        spec["services"][app_id]["proxy_rewrite"] = proxy_rewrite
+        if proxy_rewrite_rule: spec["services"][app_id]["proxy_rewrite"]["enabled"] = True
         """ Add gitea integration rule """
         gitea_integration = self.apps.get(app_id).get("gitea-integration", False)
         spec["services"][app_id]["gitea_integration"] = gitea_integration

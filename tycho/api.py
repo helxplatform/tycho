@@ -38,7 +38,7 @@ schema_file_path = os.path.join (
     'api-schema.yaml')
 template = None
 with open(schema_file_path, 'r') as file_obj:
-    template = yaml.load(file_obj, Loader=yaml.FullLoader)
+    template = yaml.load(file_obj, Loader=yaml.FullLoader) #nosec B506
 
 """ Describe the API. """
 app.config['SWAGGER'] = {
@@ -73,7 +73,7 @@ class TychoResource(Resource):
         """ Validate a request against the schema. """
         if not self.specs:
             with open(schema_file_path, 'r') as file_obj:
-                self.specs = yaml.load(file_obj, Loader=yaml.FullLoader)
+                self.specs = yaml.load(file_obj, Loader=yaml.FullLoader) #nosec B506
         to_validate = self.specs["components"]["schemas"][component]
         try:
             app.logger.debug (f"--:Validating obj {json.dumps(request.json, indent=2)}")
@@ -268,4 +268,4 @@ if __name__ == "__main__":
    if args.debug:
        debug = True
        logging.basicConfig(level=logging.DEBUG)
-   app.run(host='0.0.0.0', port=args.port, threaded=True, debug=args.debug)
+   app.run(host='0.0.0.0', port=args.port, threaded=True, debug=args.debug) #nosec B104

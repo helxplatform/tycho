@@ -1,0 +1,22 @@
+name: trivy-pr-scan 
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+      - main 
+    types: [ opened, synchronize ]
+    paths-ignore:
+    - README.md
+    - .old_cicd/*
+    - .github/*
+    - .github/workflows/*
+    - LICENSE
+    - .gitignore
+    - .dockerignore
+    - .githooks
+
+jobs:
+ trivy-pr-scan:
+  uses: helxplatform/helx-github-actions/.github/workflows/trivy-pr-scan-tycho.yml@main
+  secrets: inherit

@@ -47,7 +47,7 @@ class DockerComposeThread(threading.Thread):
             stream.write (env)
 
         """ Find and return ports for each container. """
-        config = yaml.load (TemplateUtils.apply_environment (
+        config = yaml.safe_load (TemplateUtils.apply_environment (
             env,
             self.system.source_text))
         logger.debug (f"Building conainer map for system {self.system.name}")

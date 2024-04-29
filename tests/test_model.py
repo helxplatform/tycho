@@ -17,7 +17,7 @@ def test_system_model(request):
         "principal": {"username": "renci"},
         "service_account": "default",
         "conn_string": "",
-        "proxy_rewrite_rule": False,
+        "proxy_rewrite": { 'enabled': False },
         "containers": [
             {
                 "name": "nginx-container",

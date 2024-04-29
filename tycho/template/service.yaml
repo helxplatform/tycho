@@ -32,8 +32,14 @@ metadata:
       headers:
           REMOTE_USER: {{system.username}}
       {% endif %}
-      {% if system.proxy_rewrite_rule == True %}
+      {% if system.proxy_rewrite.enabled == True %}
+      {% if system.proxy_rewrite.target == None %}
       rewrite: /private/{{system.system_name}}/{{system.username}}/{{system.identifier}}/{{system.conn_string}}
+      {% else %}
+      rewrite: {{ system.proxy_rewrite.target }}
+      add_response_headers:
+        X-Original-Path: /private/{{system.system_name}}/{{system.username}}/{{system.identifier}}/{{system.conn_string}}
+      {% endif %}
       {% endif %}
       retry_policy:
         retry_on: gateway-error

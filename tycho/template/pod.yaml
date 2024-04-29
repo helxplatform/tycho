@@ -28,7 +28,7 @@ spec:
   {% if container.limits or container.requests %}
   {% if container.limits.gpus != None and loop.first %}
   tolerations:
-  - key: "nvidia.com/gpu"
+  - key: "{{ system.gpu_resource_name }}"
     operator: "Exists"
     effect: "NoSchedule"
   {% endif %}
@@ -48,7 +48,7 @@ spec:
 {% if (system.enable_init_container == "true") and (system.create_home_dirs == "true") and (system.dev_phase != "test") %}
   initContainers:
   - name: volume-tasks
-    image: busybox:1.28
+    image: {{ system.init_image_repository }}:{{ system.init_image_tag }}
     {% if system.init_security_context.run_as_user or system.init_security_context.run_as_group %}
     securityContext:
       {% if system.init_security_context.run_as_user %}
@@ -164,7 +164,10 @@ spec:
         memory: "{{ container.limits.memory }}"
       {% endif %}
       {% if container.limits.gpus != None %}
-        nvidia.com/gpu: {{ container.limits.gpus }}
+        {{ system.gpu_resource_name }}: {{ container.limits.gpus }}
+      {% endif %}
+      {% if container.limits.ephemeralStorage != None and container.limits.ephemeralStorage != "0" and container.limits.ephemeralStorage != "" %}
+        ephemeral-storage: {{ container.limits.ephemeralStorage }}
       {% endif %}
       {% endif %}
       requests:
@@ -174,7 +177,10 @@ spec:
         memory: "{{ container.requests.memory }}"
       {% endif %}
       {% if container.requests.gpus != None %}
-        nvidia.com/gpu: {{ container.requests.gpus }}
+        {{ system.gpu_resource_name }}: {{ container.requests.gpus }}
+      {% endif %}
+      {% if container.requests.ephemeralStorage != None and container.requests.ephemeralStorage != "0" and container.requests.ephemeralStorage != "" %}
+        ephemeral-storage: {{ container.requests.ephemeralStorage }}
       {% endif %}
       {% endif %}
 {% endif %}

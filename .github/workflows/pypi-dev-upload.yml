@@ -1,9 +1,12 @@
+# This workflow will create an image for any tycho development taking place, not in master branch.
+# We use the {{ github.ref_name }} ie branch name and date to ensure uniqueness of the package.
 name: upload-dev-pypi
 run-name: Package and Upload develop image to Pypi  
 on:
   push:
-    branches:
-      - develop
+    branches-ignore:
+      - master
+      - main
     paths-ignore:
       - README.md
       - .old_cicd/*
@@ -15,33 +18,5 @@ on:
       - .githooks
 jobs:
   build-dev-to-pypi:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-      - name: Install Package Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install --upgrade build
-          python -m pip install --upgrade twine
-
-        # Important, this does not change the current version of __init__.py in the 
-        # Github repo itself, only updates within container for the specific run. 
-        # Each new push will trigger a dev build on develop. 
-
-      - name: Edit __init__.py version for develop release
-        run: |
-          R_VERSION=$(grep VERSION ./tycho/__init__.py | awk '{ print $3 }' | tr -d '"')
-          date=$(date '+%Y%m%d%H%M%S')
-          DEV_VERSION=${R_VERSION}.dev${date}
-          echo VERSION=\"$DEV_VERSION\" > ./tycho/__init__.py
-
-      - name: Build Package
-        run: python -m build
-      - name: Publish Package to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+    uses: helxplatform/helx-github-actions/.github/workflows/pypi-dev-upload.yml@main
+    secrets: inherit

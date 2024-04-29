@@ -31,7 +31,7 @@ class TychoService:
     """ Represent a service endpoint. """
     try_minikube = True
 
-    def __init__(self, name, app_id, ip_address, port, sid=None, creation_time=None, username="",utilization={}, conn_string="", workspace_name=""):
+    def __init__(self, name, app_id, ip_address, port, sid=None, creation_time=None, username="",utilization={}, conn_string="", workspace_name="",is_ready=False):
         self.name = name
         self.app_id = app_id
         self.ip_address = ip_address
@@ -43,12 +43,14 @@ class TychoService:
         self.total_util = self.get_utilization (utilization)
         self.conn_string = conn_string
         self.workspace_name = workspace_name
+        self.is_ready = is_ready
             
     def get_utilization (self, utilization):
         total = {
             "gpu": 0,
             "cpu" : 0,
-            "memory" : 0
+            "memory" : 0,
+            "ephemeralStorage" : 0
         }
         for key, val in utilization.items ():
             if 'cpu' in val.keys():
@@ -56,8 +58,10 @@ class TychoService:
                     total['cpu'] = total['cpu'] + int(val['cpu'].replace ('m', ''))
                 else:
                     total['cpu'] = total['cpu'] + int(val['cpu']) * 1000
-            if 'nvidia.com/gpu' in val.keys():
-                total['gpu'] = total['gpu'] + int(val['nvidia.com/gpu'])
+            # Will have to adjust this if we want to check for non-nvidia GPUs.
+            for key in val.keys():
+                if 'nvidia' in key:
+                    total['gpu'] = total['gpu'] + int(val[key]) * 1000
             mem = val['memory'].replace ("i", "")
             """ Run the conversion function designated by the last character of the value on the integer value """
             mem_val = mem_converter[mem[-1]] (int(mem[:-1]))
@@ -121,7 +125,7 @@ class TychoClient:
             :param request: JSON to send to the API endpoint.
         """
         if os.environ.get("REST_API", "false") == "true":
-            response = requests.post (f"{self.url}/{service}", json=request)
+            response = requests.post (f"{self.url}/{service}", json=request) #nosec B113
             result_text = f"HTTP status {response.status_code} received from service: {service}"
             logger.debug (f"TychoClient.request - {result_text}")
             if not response.status_code == 200:
@@ -536,9 +540,9 @@ if __name__ == "__main__":
         if os.path.exists (env_file):
             with open (env_file, 'r') as stream:
                 settings = stream.read ()
-                
+                # added safeloader here, per bandit instructions.
         with open(args.file, "r") as stream:
-            system = yaml.load (stream.read ())
+            system = yaml.load (stream.read (), Loader=yaml.SafeLoader)
     else:
         """ Generate a docker-compose spec based on the CLI args. """
         name = args.name

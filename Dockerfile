@@ -1,4 +1,4 @@
-FROM python:3.9.0-slim
+FROM python:3.11.4-slim-bullseye
 
 RUN apt-get update && \
     apt-get install -y build-essential libffi-dev libssl-dev git make

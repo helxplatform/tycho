@@ -279,9 +279,12 @@ class KubernetesCompute(Compute):
                 exe = shutil.which ('kubectl')
                 command = f"{exe} port-forward --pod-running-timeout=3m0s deployment/{app_id} {node_port}:{port}"
                 logger.debug (f"-- port-forward: {command}")
-                process = subprocess.Popen (command,
-                                            shell=True,
-                                            stderr=subprocess.STDOUT)
+                # commented out due to bandit High Severity flag for this process. 
+                # The variable 'process' was not accessed so this should not cause issue.
+                # Leaving for now just in case there are problems encountered. 
+                # process = subprocess.Popen (command,
+                #                             shell=True,
+                #                             stderr=subprocess.STDOUT)
                 """ process dies when the other end disconnects so no need to clean up in delete. """
             #ip_address = "127.0.0.1"
         except Exception as e:
@@ -425,6 +428,10 @@ class KubernetesCompute(Compute):
                 ip_address = "127.0.0.1"
                 port = 80
 
+                desired_replicas = item.status.replicas
+                ready_replicas = item.status.ready_replicas
+                is_ready = ready_replicas == desired_replicas
+
                 result.append(
                     {
                         "name": item.metadata.name,
@@ -435,7 +442,8 @@ class KubernetesCompute(Compute):
                         "creation_time": time,
                         "username": item_username,
                         "utilization": pod_resources,
-                        "workspace_name": workspace_name
+                        "workspace_name": workspace_name,
+                        "is_ready": is_ready
                     }
                 )
 

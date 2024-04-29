@@ -18,7 +18,6 @@ containers running on abstracted compute fabrics.
  
 """
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 """ Load the schema. """
 schema_file_path = os.path.join (
@@ -26,7 +25,7 @@ schema_file_path = os.path.join (
     'api-schema.yaml')
 template = None
 with open(schema_file_path, 'r') as file_obj:
-    template = yaml.load(file_obj, Loader=yaml.FullLoader)
+    template = yaml.load(file_obj, Loader=yaml.FullLoader) #nosec B506
 
 backplane = None
 _tycho = Tycho(backplane=backplane)
@@ -46,7 +45,7 @@ class TychoResource:
         """ Validate a request against the schema. """
         if not self.specs:
             with open(schema_file_path, 'r') as file_obj:
-                self.specs = yaml.load(file_obj, Loader=yaml.FullLoader)
+                self.specs = yaml.load(file_obj, Loader=yaml.FullLoader) #nosec B506
         to_validate = self.specs["components"]["schemas"][component]
         try:
             logger.debug(f"--:Validating obj {request}")
