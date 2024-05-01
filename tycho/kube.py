@@ -92,7 +92,7 @@ class KubernetesCompute(Compute):
         try:
             field_sel_api_response = self.api.list_namespaced_service(field_selector="metadata.name=ambassador", namespace=namespace)
             label_sel_api_response = self.api.list_namespaced_service(label_selector="app=ambassador", namespace=namespace)
-            num_of_services = len(field_sel_api_response) + len(label_sel_api_response)
+            num_of_services = len(field_sel_api_response.items) + len(label_sel_api_response.items)
             if num_of_services > 0:
                 return True
             else:
