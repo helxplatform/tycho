@@ -88,17 +88,12 @@ class KubernetesCompute(Compute):
             logger.debug(f"Raising persistent volume claim exception. {e}")
             #raise
 
-    def is_ambassador_context(self, namespace):
+    def is_ambassador_context(self, namespace, ambassador_service_name):
         try:
-            field_sel_api_response = self.api.list_namespaced_service(field_selector="metadata.name=ambassador", namespace=namespace)
-            label_sel_api_response = self.api.list_namespaced_service(label_selector="app=ambassador", namespace=namespace)
-            num_of_services = len(field_sel_api_response.items) + len(label_sel_api_response.items)
-            if num_of_services > 0:
-                return True
-            else:
-                return False
+            field_sel_api_response = self.api.list_namespaced_service(field_selector=f"metadata.name={ambassador_service_name}", namespace=namespace)
+            return len(field_sel_api_response.items) == 1
         except ApiException as e:
-            logger.info(f"Amabassador is not configured.")
+            logger.info(f"There was a problem assessing whether the ambassador service is running.", e)
 
     def start (self, system, namespace="default"):
         """ Start an abstractly described distributed system on the cluster.
@@ -121,7 +116,7 @@ class KubernetesCompute(Compute):
                     systemVolumesCopy.append(value)
             system.volumes = systemVolumesCopy
             """ Check the status of ambassador """
-            amb_status = self.is_ambassador_context(namespace)
+            amb_status = self.is_ambassador_context(namespace, system.ambassador_service_name)
             if amb_status:
                 system.amb = True
             #api_response = self.api.list_namespace()
