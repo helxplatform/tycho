@@ -43,7 +43,7 @@ To locate the ".dev" tagged pypi build, navigate to the corresponding workflow r
 
 ## Development environment
 1. git clone https://github.com/helxplatform/tycho.git --branch branch_name
-2. python3 -m venv /path/to/venv - could be any path
+2. python3 -m venv /path/to/venv - may be any path
 3. source /path/to/venv/bin/activate 
 4. pip install -r /tycho/requirements.txt
 5. export PYTHONPATH={PYTHONPATH}:/path/to/tycho/
