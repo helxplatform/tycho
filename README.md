@@ -1,4 +1,6 @@
 # Tycho
+⚠️⚠️⚠️TYCHO HAS BEEN MOVED TO APPSTORE!!⚠️⚠️ 
+🛑 Changes to this repository will no longer affect HeLx 🛑
 
 [![PyPI](https://img.shields.io/pypi/v/tycho-api?label=tycho)](https://pypi.org/project/tycho-api/)
 [![Build-Project](https://github.com/helxplatform/tycho/actions/workflows/build-project.yml/badge.svg)](https://github.com/helxplatform/tycho/actions/workflows/build-project.yml)
